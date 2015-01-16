@@ -1,0 +1,3 @@
+moduleName = econax-client-module
+moduleVersion = 1.0
+extensionClasses = de.econaxy.extensions.DolphinExtension

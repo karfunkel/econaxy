@@ -1,0 +1,3 @@
+moduleName = econax-server-module
+moduleVersion = 1.0
+extensionClasses = de.econaxy.server.extensions.DolphinExtension

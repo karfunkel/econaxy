@@ -1,0 +1,16 @@
+apply plugin : 'war'
+apply plugin : 'jetty'
+
+dependencies {
+    compile project(':server')
+}
+
+war {
+    archiveName='econaxy-server.war'
+}
+
+jettyRun {
+    contextPath = 'econaxy'
+}
+
+

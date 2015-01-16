@@ -1,0 +1,71 @@
+import com.github.jengelman.gradle.plugins.shadow.transformers.*
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'org.codehaus.griffon:gradle-griffon-plugin:2.1.0'
+        classpath 'net.saliman:gradle-cobertura-plugin:2.2.5'
+        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.0.1'
+        classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0'
+        classpath 'org.gradle.api.plugins:gradle-izpack-plugin:0.2.3'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.0'
+        classpath 'edu.sc.seis.gradle:macappbundle:2.0.0'
+        classpath 'org.kordamp.gradle:stats-gradle-plugin:0.1.3'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.6'
+        classpath 'de.gliderpilot.gradle.jnlp:gradle-jnlp-plugin:0.0.5'
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+
+    apply plugin: 'idea'
+    apply plugin: 'eclipse'
+    apply plugin: 'groovy'
+    apply from: "${rootProject.projectDir}/gradle/publishing.gradle"
+    apply from: "${rootProject.projectDir}/gradle/code-coverage.gradle"
+    apply from: "${rootProject.projectDir}/gradle/code-quality.gradle"
+    apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'org.kordamp.gradle.stats'
+    apply plugin: 'com.github.ben-manes.versions'
+
+    idea {
+        module {
+            downloadJavadoc = true
+            downloadSources = true
+        }
+    }
+
+    shadowJar {
+        transform(ServiceFileTransformer)
+        transform(ServiceFileTransformer) {
+            path = 'META-INF/griffon'
+        }
+        transform(ServiceFileTransformer) {
+            path = 'META-INF/types'
+        }
+        transform(PropertiesFileTransformer) {
+            paths = [
+                'META-INF/editors/java.beans.PropertyEditor'
+            ]
+        }
+    }
+}
+
+subprojects {
+    dependencies {
+	    compile 'org.codehaus.groovy:groovy-all:2.3.8'
+        runtime('log4j:log4j:1.2.17') {
+            exclude group: 'ant',         module: 'ant-nodeps'
+            exclude group: 'ant',         module: 'ant-junit'
+            exclude group: 'ant-contrib', module: 'ant-contrib'
+        }
+        runtime 'org.slf4j:slf4j-log4j12:1.7.7'
+        testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
+    }
+}

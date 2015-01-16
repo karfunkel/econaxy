@@ -1,0 +1,11 @@
+dependencies {
+    compile project(':shared')
+    compile "org.open-dolphin:dolphin-server:$dolphinVersion"
+
+    compile "org.eclipse.jetty:jetty-server:$jettyVersion"
+    compile "org.eclipse.jetty:jetty-servlet:$jettyVersion"
+
+    compile "org.slf4j:slf4j-api:$slf4jVersion"
+    compile "org.slf4j:slf4j-log4j12:$slf4jVersion"
+    compile "log4j:log4j:$log4jVersion"
+}
