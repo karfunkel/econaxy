@@ -12,7 +12,7 @@ class ApplicationModule extends AbstractModule {
     @Override
     protected void doConfigure() {
         bind(EventHandler).to(ApplicationEventHandler).asSingleton()
-        bind(ClientDolphinProvider).toInstance(new ClientDolphinProvider())
+        bind(ClientDolphinProvider).to(ClientDolphinProvider).asSingleton()
         bind(ClientDolphin).toProvider(ClientDolphinProvider)
         bind(InternalServer).to(InternalServer).asSingleton()
     }

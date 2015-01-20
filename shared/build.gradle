@@ -1,0 +1,3 @@
+dependencies {
+    compile "de.econaxy:transforms:0.1.0-SNAPSHOT"
+}

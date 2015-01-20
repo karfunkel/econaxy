@@ -6,6 +6,6 @@ import org.opendolphin.core.client.ClientPresentationModel
 
 class DolphinExtension {
     static ClientPresentationModel presentationModel(ClientDolphin dolphin, ModelBase model) {
-        dolphin.presentationModel(model.id, model.type, model.attributes)
+        dolphin.presentationModel(model.getClass()._ID, model.getClass()._TYPE, model.attributes)
     }
 }

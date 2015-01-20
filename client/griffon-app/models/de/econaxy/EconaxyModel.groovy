@@ -11,4 +11,5 @@ import org.opendolphin.core.client.ClientPresentationModel
 @FXObservable
 class EconaxyModel {
     ObservableList<ClientPresentationModel> messages = FXCollections.observableArrayList()
+    ClientPresentationModel profile
 }

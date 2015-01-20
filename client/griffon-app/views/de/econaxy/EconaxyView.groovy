@@ -26,7 +26,7 @@ class EconaxyView {
                         tableColumn('Text', prefWidth: bind(messages.width() / 0.75))
                     }
                     */
-                    label('Hello World')
+                    label(id: 'loginDate', prefWidth: 200)
                     button(prefWidth: 200, clickAction)
                 }
             }

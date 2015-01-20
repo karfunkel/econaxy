@@ -1,6 +1,7 @@
 package de.econaxy
 
 import de.econaxy.server.InternalServer
+import de.econaxy.shared.ActionCommand
 import griffon.core.Configuration
 import griffon.core.GriffonApplication
 import griffon.core.event.EventHandler
@@ -39,7 +40,7 @@ class ApplicationEventHandler implements EventHandler {
 
     void onShutdownStart(GriffonApplication application) {
         clientDolphinProvider.dolphin.stopPushListening()
-        clientDolphinProvider.dolphin.send("Disconnect") {
+        clientDolphinProvider.dolphin.send(ActionCommand.DISCONNECT) {
             internalServer.stop()
         }
     }

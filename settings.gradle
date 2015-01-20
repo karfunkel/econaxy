@@ -1,3 +1,4 @@
+include 'transforms'
 include 'shared'
 include 'server'
 include 'server-app'

@@ -2,10 +2,12 @@ import com.github.jengelman.gradle.plugins.shadow.transformers.*
 
 buildscript {
     repositories {
+        mavenLocal()
         jcenter()
     }
 
     dependencies {
+        classpath "de.econaxy:transforms:0.1.0-SNAPSHOT"
         classpath 'org.codehaus.griffon:gradle-griffon-plugin:2.1.0'
         classpath 'net.saliman:gradle-cobertura-plugin:2.2.5'
         classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.0.1'
@@ -21,12 +23,14 @@ buildscript {
 
 allprojects {
     repositories {
+        mavenLocal()
         jcenter()
     }
 
     apply plugin: 'idea'
     apply plugin: 'eclipse'
     apply plugin: 'groovy'
+    apply plugin: 'maven'
     apply from: "${rootProject.projectDir}/gradle/publishing.gradle"
     apply from: "${rootProject.projectDir}/gradle/code-coverage.gradle"
     apply from: "${rootProject.projectDir}/gradle/code-quality.gradle"
@@ -60,12 +64,17 @@ allprojects {
 subprojects {
     dependencies {
 	    compile 'org.codehaus.groovy:groovy-all:2.3.8'
-        runtime('log4j:log4j:1.2.17') {
+        runtime("log4j:log4j:$log4jVersion") {
             exclude group: 'ant',         module: 'ant-nodeps'
             exclude group: 'ant',         module: 'ant-junit'
             exclude group: 'ant-contrib', module: 'ant-contrib'
         }
-        runtime 'org.slf4j:slf4j-log4j12:1.7.7'
+        runtime "org.slf4j:slf4j-log4j12:$slf4jVersion"
+        compile "org.slf4j:slf4j-api:$slf4jVersion"
         testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
     }
 }
+
+tasks.getByPath(":shared:compileGroovy").dependsOn tasks.getByPath(":transforms:install")
+tasks.getByPath(":client:compileJava").dependsOn tasks.getByPath(":shared:install")
+tasks.getByPath(":server:compileJava").dependsOn tasks.getByPath(":shared:install")
