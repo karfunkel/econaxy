@@ -6,12 +6,21 @@ import org.codehaus.groovy.ast.ClassHelper
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.FieldNode
 import org.codehaus.groovy.ast.InnerClassNode
+import org.codehaus.groovy.ast.MethodNode
+import org.codehaus.groovy.ast.Parameter
 import org.codehaus.groovy.ast.builder.AstBuilder
+import org.codehaus.groovy.ast.expr.ClosureExpression
 import org.codehaus.groovy.ast.expr.ConstantExpression
+import org.codehaus.groovy.ast.expr.DeclarationExpression
+import org.codehaus.groovy.ast.expr.Expression
+import org.codehaus.groovy.ast.expr.VariableExpression
+import org.codehaus.groovy.ast.stmt.BlockStatement
+import org.codehaus.groovy.ast.stmt.ExpressionStatement
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.control.messages.SyntaxErrorMessage
 import org.codehaus.groovy.syntax.SyntaxException
+import org.codehaus.groovy.syntax.Token
 import org.codehaus.groovy.transform.ASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformationClass
@@ -51,6 +60,21 @@ class ModelTransformation implements ASTTransformation {
             return
         }
         ClassNode annotatedClass = astNodes[1]
+
+        annotatedClass.implementsInterface(ClassHelper.make('de.econaxy.shared.models.ModelBase'))
+
+        BlockStatement block = new AstBuilder().buildFromCode {
+            def attributeNames = this.metaClass.properties.name - ['id', 'type', 'class', 'attributeNames', 'attributes', 'propertyChangeListeners']
+            attributeNames.collectEntries { name ->
+                [name, getProperty(name)]
+            }
+        }.first()
+
+        def code = new BlockStatement()
+        code.addStatements(block.statements)
+
+        annotatedClass.addMethod('getAttributes', ClassNode.ACC_PUBLIC, ClassHelper.make(Map), [] as Parameter[], [] as ClassNode[], code)
+
         AnnotationNode annotationNode = astNodes.first()
         // public static final _ID
         annotatedClass.addField(new FieldNode('_ID', ClassNode.ACC_PUBLIC | ClassNode.ACC_STATIC | ClassNode.ACC_FINAL, ClassHelper.make(String), annotatedClass, new ConstantExpression(annotationNode.getMember('id').text)))
