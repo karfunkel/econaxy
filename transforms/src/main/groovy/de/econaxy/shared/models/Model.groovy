@@ -1,26 +1,14 @@
 package de.econaxy.shared.models
 
-import org.codehaus.groovy.ast.ASTNode
-import org.codehaus.groovy.ast.AnnotationNode
-import org.codehaus.groovy.ast.ClassHelper
-import org.codehaus.groovy.ast.ClassNode
-import org.codehaus.groovy.ast.FieldNode
-import org.codehaus.groovy.ast.InnerClassNode
-import org.codehaus.groovy.ast.MethodNode
-import org.codehaus.groovy.ast.Parameter
+import groovyjarjarasm.asm.Opcodes
+import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.builder.AstBuilder
-import org.codehaus.groovy.ast.expr.ClosureExpression
 import org.codehaus.groovy.ast.expr.ConstantExpression
-import org.codehaus.groovy.ast.expr.DeclarationExpression
-import org.codehaus.groovy.ast.expr.Expression
-import org.codehaus.groovy.ast.expr.VariableExpression
 import org.codehaus.groovy.ast.stmt.BlockStatement
-import org.codehaus.groovy.ast.stmt.ExpressionStatement
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.control.messages.SyntaxErrorMessage
 import org.codehaus.groovy.syntax.SyntaxException
-import org.codehaus.groovy.syntax.Token
 import org.codehaus.groovy.transform.ASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformationClass
@@ -61,11 +49,14 @@ class ModelTransformation implements ASTTransformation {
         }
         ClassNode annotatedClass = astNodes[1]
 
-        annotatedClass.implementsInterface(ClassHelper.make('de.econaxy.shared.models.ModelBase'))
+        ClassNode modelBase = ClassHelper.makeWithoutCaching(ModelBase)
+        annotatedClass.addInterface(modelBase)
 
         BlockStatement block = new AstBuilder().buildFromCode {
             def attributeNames = this.metaClass.properties.name - ['id', 'type', 'class', 'attributeNames', 'attributes', 'propertyChangeListeners']
             attributeNames.collectEntries { name ->
+
+                println "$name ${getProperty(name)}"
                 [name, getProperty(name)]
             }
         }.first()
@@ -73,16 +64,18 @@ class ModelTransformation implements ASTTransformation {
         def code = new BlockStatement()
         code.addStatements(block.statements)
 
-        annotatedClass.addMethod('getAttributes', ClassNode.ACC_PUBLIC, ClassHelper.make(Map), [] as Parameter[], [] as ClassNode[], code)
+        ClassNode returnType = ClassHelper.make(Map).plainNodeReference
+        returnType.genericsTypes = [new GenericsType(ClassHelper.make(String)), new GenericsType(ClassHelper.make(Object))]
+        annotatedClass.addMethod('getAttributes', Opcodes.ACC_PUBLIC, returnType, [] as Parameter[], [] as ClassNode[], code)
 
         AnnotationNode annotationNode = astNodes.first()
         // public static final _ID
-        annotatedClass.addField(new FieldNode('_ID', ClassNode.ACC_PUBLIC | ClassNode.ACC_STATIC | ClassNode.ACC_FINAL, ClassHelper.make(String), annotatedClass, new ConstantExpression(annotationNode.getMember('id').text)))
+        annotatedClass.addField(new FieldNode('_ID', Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, ClassHelper.make(String), annotatedClass, new ConstantExpression(annotationNode.getMember('id').text)))
         // public static final _TYPE
-        annotatedClass.addField(new FieldNode('_TYPE', ClassNode.ACC_PUBLIC | ClassNode.ACC_STATIC | ClassNode.ACC_FINAL, ClassHelper.make(String), annotatedClass, new ConstantExpression(annotationNode.getMember('type')?.text ?: annotatedClass.nameWithoutPackage)))
+        annotatedClass.addField(new FieldNode('_TYPE', Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, ClassHelper.make(String), annotatedClass, new ConstantExpression(annotationNode.getMember('type')?.text ?: annotatedClass.nameWithoutPackage)))
 
         annotatedClass.properties.each { property ->
-            annotatedClass.addField(new FieldNode(constantName(property.name), ClassNode.ACC_PUBLIC | ClassNode.ACC_STATIC | ClassNode.ACC_FINAL, ClassHelper.make(String), annotatedClass, new ConstantExpression(property.name)))
+            annotatedClass.addField(new FieldNode(constantName(property.name), Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, ClassHelper.make(String), annotatedClass, new ConstantExpression(property.name)))
         }
     }
 
