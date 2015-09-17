@@ -63,7 +63,7 @@ allprojects {
 
 subprojects {
     dependencies {
-	    compile 'org.codehaus.groovy:groovy-all:2.3.8'
+	    compile "org.codehaus.groovy:groovy-all:$groovyVersion"
         runtime("log4j:log4j:$log4jVersion") {
             exclude group: 'ant',         module: 'ant-nodeps'
             exclude group: 'ant',         module: 'ant-junit'

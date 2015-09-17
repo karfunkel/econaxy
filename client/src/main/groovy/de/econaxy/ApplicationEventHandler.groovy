@@ -7,6 +7,7 @@ import griffon.core.GriffonApplication
 import griffon.core.event.EventHandler
 import org.opendolphin.core.client.ClientDolphin
 import org.opendolphin.core.client.ClientModelStore
+import org.opendolphin.core.client.comm.BlindCommandBatcher
 import org.opendolphin.core.client.comm.ClientConnector
 import org.opendolphin.core.client.comm.HttpClientConnector
 import org.opendolphin.core.client.comm.JavaFXUiThreadHandler
@@ -30,8 +31,11 @@ class ApplicationEventHandler implements EventHandler {
 
         ClientDolphin dolphin = new ClientDolphin()
         dolphin.clientModelStore = new ClientModelStore(dolphin)
+        BlindCommandBatcher batcher = new BlindCommandBatcher()
+        batcher.mergeValueChanges = true
+        batcher.deferMillis = 100
         String url = System.properties.remote ?: "$config.connection.schema://$config.connection.host:$config.connection.port/$config.connection.context"
-        ClientConnector connector = new HttpClientConnector(dolphin, url)
+        ClientConnector connector = new HttpClientConnector(dolphin, batcher, url)
         connector.codec = new JsonCodec()
         connector.uiThreadHandler = new JavaFXUiThreadHandler()
         dolphin.clientConnector = connector

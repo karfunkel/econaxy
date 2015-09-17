@@ -1,5 +1,6 @@
 package de.econaxy.server.extensions
 
+import de.econaxy.server.Econaxy
 import de.econaxy.shared.models.ModelBase
 import org.opendolphin.core.server.ServerAttribute
 import org.opendolphin.core.server.ServerDolphin
@@ -29,6 +30,14 @@ class DolphinExtension {
     static
     def changeValue(DolphinServerAction dolphinAction, Class<? extends ModelBase> modelClass, String attributeId, Object value) {
         return dolphinAction.changeValue(attribute(dolphinAction, modelClass, attributeId), value)
+    }
+
+    static Econaxy getEconaxy(ServerDolphin dolphin) {
+        return Econaxy.getInstance(dolphin)
+    }
+
+    static Econaxy getEconaxy(DolphinServerAction dolphinAction) {
+        return Econaxy.getInstance(dolphinAction.serverDolphin)
     }
 
 }

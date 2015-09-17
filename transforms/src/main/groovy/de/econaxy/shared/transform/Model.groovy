@@ -1,4 +1,4 @@
-package de.econaxy.shared.models
+package de.econaxy.shared.transform
 
 import groovyjarjarasm.asm.Opcodes
 import org.codehaus.groovy.ast.*
@@ -20,10 +20,9 @@ import java.lang.annotation.Target
 
 @Retention(RetentionPolicy.SOURCE)
 @Target([ElementType.TYPE])
-@GroovyASTTransformationClass("de.econaxy.shared.models.ModelTransformation")
+@GroovyASTTransformationClass("ModelTransformation")
 public @interface Model {
     String id()
-
     String type() default '' // Classname
 }
 
@@ -49,24 +48,8 @@ class ModelTransformation implements ASTTransformation {
         }
         ClassNode annotatedClass = astNodes[1]
 
-        ClassNode modelBase = ClassHelper.makeWithoutCaching(ModelBase)
-        annotatedClass.addInterface(modelBase)
-
-        BlockStatement block = new AstBuilder().buildFromCode {
-            def attributeNames = this.metaClass.properties.name - ['id', 'type', 'class', 'attributeNames', 'attributes', 'propertyChangeListeners']
-            attributeNames.collectEntries { name ->
-
-                println "$name ${getProperty(name)}"
-                [name, getProperty(name)]
-            }
-        }.first()
-
-        def code = new BlockStatement()
-        code.addStatements(block.statements)
-
-        ClassNode returnType = ClassHelper.make(Map).plainNodeReference
-        returnType.genericsTypes = [new GenericsType(ClassHelper.make(String)), new GenericsType(ClassHelper.make(Object))]
-        annotatedClass.addMethod('getAttributes', Opcodes.ACC_PUBLIC, returnType, [] as Parameter[], [] as ClassNode[], code)
+        ClassNode modelBase = ClassHelper.makeWithoutCaching('de.econaxy.shared.models.ModelBase')
+        annotatedClass.setSuperClass(modelBase)
 
         AnnotationNode annotationNode = astNodes.first()
         // public static final _ID

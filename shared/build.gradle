@@ -1,3 +1,4 @@
 dependencies {
+    compile "org.open-dolphin:dolphin-shared:$dolphinVersion"
     compile "de.econaxy:transforms:0.1.0-SNAPSHOT"
 }
